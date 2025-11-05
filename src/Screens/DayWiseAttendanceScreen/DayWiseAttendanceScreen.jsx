@@ -6,6 +6,7 @@ const DayWiseAttendanceScreen = () => {
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (fromDate && toDate) {
@@ -20,6 +21,7 @@ const DayWiseAttendanceScreen = () => {
     );
 
     const DayWiseAttendance = () => {
+        setIsLoading(true);
         const url = API_END_POINT.DayWiseAttendanceReport(fromDate, toDate);
 
         fetch(url, {
@@ -35,7 +37,8 @@ const DayWiseAttendanceScreen = () => {
                     setDayWiseAttendancedata(result.data);
                 }
             })
-            .catch((error) => console.error("Fetch error:", error));
+            .catch((error) => console.error(error))
+            .finally(() => setIsLoading(false));
     };
 
     // const uniqueActiveEmpCount = new Set(filteredData.map(item => item.emp_id)).size;
@@ -171,19 +174,28 @@ const DayWiseAttendanceScreen = () => {
 
             </div>
 
-            <div className="overflow-x-auto">
+
+            {isLoading && (
+                <div className="flex justify-center items-center mb-4">
+                    <div className="animate-spin h-6 w-6 border-4 border-teal-700 border-t-transparent rounded-full mr-2"></div>
+                    <span className="text-teal-700 text-sm font-medium">Loading...</span>
+                </div>
+            )}
+
+            <div className="overflow-x-auto max-h-[500px]">
                 <table className="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg">
                     <thead className="bg-teal-700 text-white text-sm">
                         <tr>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">EMP ID</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">EMP CODE</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">NAME</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">PUNCH DATE</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">PUNCH IN</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">PUNCH OUT</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">TOTAL HOUR</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">ATTENDANCE STATUS</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">APP VERSION</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">EMP ID</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">EMP CODE</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">NAME</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">PUNCH DATE</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">PUNCH IN</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">PUNCH OUT</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">TOTAL HOUR</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">ATTENDANCE STATUS</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">LEAVE TYPE</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">APP VERSION</th>
                         </tr>
                     </thead>
                     <tbody className="text-sm text-gray-700">
@@ -197,6 +209,7 @@ const DayWiseAttendanceScreen = () => {
                                 <td className="px-4 py-2">{res.punch_out_time}</td>
                                 <td className="px-4 py-2">{res.total_hours}</td>
                                 <td className="px-4 py-2">{res.attendance_status}</td>
+                                <td className="px-4 py-2">{res.leave_type}</td>
                                 <td className="px-4 py-2">{res.app_version}</td>
                             </tr>
                         ))}

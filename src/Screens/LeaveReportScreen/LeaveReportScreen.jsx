@@ -46,55 +46,52 @@ const LeaveReportScreen = () => {
   };
 
   const downloadCSV = () => {
-    if (filteredData.length === 0) {
-        alert("No data available to download");
-        return;
+    // agar filter laga hai toh filteredData use karo
+    const dataToDownload = filteredData.length > 0 ? filteredData : leaveReport;
+
+    if (dataToDownload.length === 0) {
+      alert("No data available to download");
+      return;
     }
 
-    // Create CSV header
     const headers = [
-        "STATUS",
-        "EMP ID",
-        "NAME",
-        "LEAVE FROM-TO",
-        "DAYS",
-        "TYPE",
-        "REMARKS",
-        "REPORTING TO",
-        "HEAD QUARTER",
-        "APPROVED BY",
-        "APPROVED DATE",
-        "AVAILED LEAVE",
-        "AVAILABLE LEAVE",
-        "ALLOCATED LEAVE"
-
+      "STATUS", "EMP ID", "NAME", "LEAVE FROM-TO", "DAYS", "TYPE", "REMARKS", "REPORTING TO",
+      "HEAD QUARTER", "APPROVED BY", "APPROVED DATE", "ALL CL", "ALL EL", "ALL SL", "TOTAL ALL",
+      "AVL CL", "AVL EL", "AVL SL", "TOTAL AVL", "BAL CL", "BAL EL", "BAL SL", "TOTAL BAL"
     ];
 
-    // Create CSV rows
-    const rows = filteredData.map(item => {
-        const rowData = [
-            item.status,
-            item.emp_id,
-            item.user_name,
-            item.leave_from_to,
-            item.leave_days,
-            item.leave_type,
-            item.leave_reason,
-            item.reporting_to_name,
-            item.head_quater_name,
-            item.approved_by,
-            item.approved_date,
-            item.total_availed_leave,
-            item.total_balance_leave,
-            item.total_allocated_leave
-        ];
-        return rowData.join(",");
-    });
+    const rows = dataToDownload.map(item => [
+      item.status,
+      item.emp_id,
+      item.user_name,
+      item.leave_from_to,
+      item.leave_days,
+      item.leave_type,
+      `"${(item.leave_reason || "")
+        .replace(/"/g, '""')
+        .replace(/\n/g, ' ')
+        .replace(/,/g, ' ')}"`,
+      item.reporting_to_name,
+      item.head_quater_name,
+      item.approved_by,
+      item.approved_date,
+      item.total_allocated_cl,
+      item.total_allocated_el,
+      item.total_allocated_sl,
+      item.total_allocated_leave,
+      item.total_availed_cl,
+      item.total_availed_el,
+      item.total_availed_sl,
+      item.total_availed_leave,
+      item.total_balance_cl,
+      item.total_balance_el,
+      item.total_balance_sl,
+      item.total_balance_leave
+    ].join(","));
 
-    // Combine header and rows
+
     const csvContent = [headers.join(","), ...rows].join("\n");
 
-    // Create download link
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -104,7 +101,8 @@ const LeaveReportScreen = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-};
+  };
+
 
   useEffect(() => {
     if (fromDate && toDate) {
@@ -177,28 +175,45 @@ const LeaveReportScreen = () => {
             Excel Report
           </button>
         </div>
-
+        {/* <div className="flex justify-between items-center mt-2">
+          <p className="font-bold text-gray-800">
+            Total Records: {leaveReport.length}
+          </p>
+          <p className="font-bold text-green-600">
+            Showing: {filteredData.length}
+          </p>
+        </div> */}
       </div>
 
+
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[500px]">
         <table className="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg">
           <thead className="bg-teal-700 text-white text-sm">
             <tr>
-              <th className="px-4 py-2 text-left whitespace-nowrap">STATUS</th>
-              <th className="px-4 py-2 text-left whitespace-nowrap">EMP ID</th>
-              <th className="px-4 py-2 text-left whitespace-nowrap">NAME</th>
-              <th className="px-4 py-2 text-left whitespace-nowrap">LEAVE FROM-TO</th>
-              <th className="px-4 py-2 text-left whitespace-nowrap">DAYS</th>
-              <th className="px-4 py-2 text-left whitespace-nowrap">TYPE</th>
-              <th className="px-4 py-2 text-left whitespace-nowrap">REMARKS</th>
-              <th className="px-4 py-2 text-left whitespace-nowrap">REPORTING TO</th>
-              <th className="px-4 py-2 text-left whitespace-nowrap">HEAD QUARTER</th>
-              <th className="px-4 py-2 text-left whitespace-nowrap">APPROVED BY</th>
-              <th className="px-4 py-2 text-left whitespace-nowrap">APPROVED DATE</th>
-              <th className="px-4 py-2 text-left whitespace-nowrap">AVAILED LEAVE</th>
-              <th className="px-4 py-2 text-left whitespace-nowrap">AVAILABLE LEAVE</th>
-              <th className="px-4 py-2 text-left whitespace-nowrap">ALLOCATED LEAVE</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">STATUS</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">EMP ID</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">NAME</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">LEAVE FROM-TO</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">DAYS</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">TYPE</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">REMARKS</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">REPORTING TO</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">HEAD QUARTER</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">APPROVED BY</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">APPROVED DATE</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">ALL CL</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">ALL EL</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">ALL SL</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">TOTAL ALL</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">AVL CL</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">AVL EL</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">AVL SL</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">TOTAL AVL</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">BAL CL</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">BAL EL</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">BAL SL</th>
+              <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">TOTAL BAL</th>
             </tr>
 
           </thead>
@@ -230,13 +245,21 @@ const LeaveReportScreen = () => {
                 <td className="px-4 py-2">{res.head_quater_name || "--"}</td>
                 <td className="px-4 py-2 whitespace-nowrap">{res.approved_by}</td>
                 <td className="px-4 py-2">{res.approved_date}</td>
-                <td className="px-4 py-2">{res.total_availed_leave}</td>
-                <td className="px-4 py-2">{res.total_balance_leave}</td>
+                <td className="px-4 py-2">{res.total_allocated_cl}</td>
+                <td className="px-4 py-2">{res.total_allocated_el}</td>
+                <td className="px-4 py-2">{res.total_allocated_sl}</td>
                 <td className="px-4 py-2">{res.total_allocated_leave}</td>
+                <td className="px-4 py-2">{res.total_availed_cl}</td>
+                <td className="px-4 py-2">{res.total_availed_el}</td>
+                <td className="px-4 py-2">{res.total_availed_sl}</td>
+                <td className="px-4 py-2">{res.total_availed_leave}</td>
+                <td className="px-4 py-2">{res.total_balance_cl}</td>
+                <td className="px-4 py-2">{res.total_balance_el}</td>
+                <td className="px-4 py-2">{res.total_balance_sl}</td>
+                <td className="px-4 py-2">{res.total_balance_leave}</td>
               </tr>
             ))}
           </tbody>
-
         </table>
       </div>
     </div>

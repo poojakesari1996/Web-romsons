@@ -61,44 +61,56 @@ const AttendanceReportScreen = () => {
             alert("No data available to download");
             return;
         }
-
-        // Create CSV header
+    
+        // Correct headers
         const headers = [
-            "EMP ID",
             "EMP CODE",
+            "EMP ID",
             "User Name",
             "Designation",
             ...Array.from({ length: 31 }, (_, i) => (i + 1).toString()),
-            "Present Day",
+            "Present",
+            "Regu",
             "Half Day",
-            "Leave",
+            "WEO",
+            "SL",
+            "CL",
+            "EL",
+            "PL",
+            "ML",
+            "LOP",
             "Holidays",
-            "Absent Days",
+            "Absent",
+            "Total working days",
             "Month Days"
         ];
-
-        // Create CSV rows
+    
         const rows = filteredData.map(item => {
-            const rowData = [
-                item.emp_id,
-                item.emp_code,
-                item.user_name,
-                item.designation,
+            return [
+                item.emp_code,                     
+                item.emp_id,                       
+                item.user_name,                    
+                item.designation,                  
                 ...Array.from({ length: 31 }, (_, i) => item[(i + 1).toString()] || ""),
-                item.present_days,
-                item.half_days,
-                item.leave,
-                item.holiday,
-                item.absent,
-                item.month_days
-            ];
-            return rowData.join(",");
+                item.present_days,                 
+                item.regularized_present,          
+                item.half_days,                    
+                item.weo,                          
+                item.leave?.SL || 0,              
+                item.leave?.CL || 0,               
+                item.leave?.EL || 0,               
+                item.pending_leave,
+                item.ml_days,
+                item.lop_days,               
+                item.holiday,                      
+                item.absent,                       
+                item.total_working_days,           
+                item.month_days                    
+            ].join(",");
         });
-
-        // Combine header and rows
+    
         const csvContent = [headers.join(","), ...rows].join("\n");
-
-        // Create download link
+    
         const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -109,6 +121,7 @@ const AttendanceReportScreen = () => {
         link.click();
         document.body.removeChild(link);
     };
+    
 
     return (
         <div className="p-6 bg-gray-100 min-h-screen">
@@ -186,23 +199,31 @@ const AttendanceReportScreen = () => {
                 </div>
             )}
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[500px]">
                 <table className="min-w-full bg-white border border-gray-200 shadow-sm rounded-lg">
                     <thead className="bg-teal-700 text-white text-sm">
                         <tr>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">EMP ID</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">EMP CODE</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">User Name</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">Designation</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">EMP ID</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">EMP CODE</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">User Name</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">Designation</th>
                             {[...Array(31)].map((_, i) => (
-                                <th key={i} className="px-4 py-2 text-left whitespace-nowrap">{i + 1}</th>
+                                <th key={i} className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">{i + 1}</th>
                             ))}
-                            <th className="px-4 py-2 text-left whitespace-nowrap">Present Day</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">Half Day</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">Leave</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">Holidays</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">Absent Days</th>
-                            <th className="px-4 py-2 text-left whitespace-nowrap">Month Days</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">Present</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">Regu</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">Half Day</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">WEO</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">SL</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">CL</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">EL</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">PL</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">ML</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">LOP</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">Holidays</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">Absent</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">Total working days</th>
+                            <th className="px-4 py-2 text-left whitespace-nowrap sticky top-0 bg-teal-700 z-10">Month Days</th>
                         </tr>
                     </thead>
                     <tbody className="text-sm text-gray-700">
@@ -219,10 +240,18 @@ const AttendanceReportScreen = () => {
                                     );
                                 })}
                                 <td className="px-4 py-2">{res.present_days}</td>
+                                <td className="px-4 py-2">{res.regularized_present}</td>
                                 <td className="px-4 py-2">{res.half_days}</td>
-                                <td className="px-4 py-2">{res.leave}</td>
+                                <td className="px-4 py-2">{res.weo}</td>
+                                <td className="px-4 py-2">{res.leave?.SL || 0}</td>
+                                <td className="px-4 py-2">{res.leave?.CL || 0}</td>
+                                <td className="px-4 py-2">{res.leave?.EL || 0}</td>
+                                <td className="px-4 py-2">{res.pending_leave}</td>
+                                <td className="px-4 py-2">{res.ml_days}</td>
+                                <td className="px-4 py-2">{res.lop_days}</td>
                                 <td className="px-4 py-2">{res.holiday}</td>
                                 <td className="px-4 py-2">{res.absent}</td>
+                                <td className="px-4 py-2">{res.total_working_days}</td>
                                 <td className="px-4 py-2">{res.month_days}</td>
                             </tr>
                         ))}
